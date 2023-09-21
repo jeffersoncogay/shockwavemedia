@@ -6,3 +6,5 @@ export {default as DataAnalyticsIcon} from './data-analytics.svg';
 export {default as SubscriptionIcon} from './subscription.svg';
 export {default as HelpCenterIcon} from './help-center.svg';
 export {default as SettingsIcon} from './settings.svg';
+export {default as NextIcon} from './next.svg';
+export {default as PrevIcon} from './prev.svg';

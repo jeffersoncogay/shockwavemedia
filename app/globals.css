@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.custom-day {
+  /* height: 50px; */
+}
+.rbc-timeslot-group {
+    min-height: 100px!important;
+}
