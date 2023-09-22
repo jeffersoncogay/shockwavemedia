@@ -5,6 +5,7 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "moment/locale/en-gb";
 import { ConsultationIcon, NextIcon, PrevIcon, UserIcon } from "./assets/svgs";
+import Appointment from "./components/appointment";
 
 moment.locale("en-gb");
 
@@ -15,7 +16,12 @@ const Home: React.FC = () => {
 
   const events = [
     {
-      title: "Meeting 1",
+      veterinary: {
+        veterinary_name: "Anika Perry",
+        address: "4517 Washington Avenue, Manchester, Kentucky 39495",
+        building: "Green Bow Vett",
+        contact_number: "+63 0123 123",
+      },
       start: new Date(2023, 8, 22, 10, 0),
       end: new Date(2023, 8, 22, 11, 30),
     },
@@ -104,8 +110,8 @@ const Home: React.FC = () => {
               {moment(new Date(event.start)).format("h:mm A")} -{" "}
               {moment(new Date(event.end)).format("h:mm A")}
             </p>
-            <div className='flex gap-2 items-center'>
-              <UserIcon className='stroke-2 stroke-cpurple w-5 h-5' />
+            <div className="flex gap-2 items-center">
+              <UserIcon className="stroke-2 stroke-cpurple w-5 h-5" />
               <span>Chrissie Lee, Kurt Browne, Anthony dela Cruz</span>
             </div>
           </div>
@@ -135,6 +141,7 @@ const Home: React.FC = () => {
             event: CustomEvent,
           }}
         />
+        <Appointment />
       </div>
     </div>
   );
