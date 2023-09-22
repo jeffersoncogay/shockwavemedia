@@ -52,8 +52,8 @@ export default function Nav() {
   return (
     <nav
       className={`w-full ${
-        isNavOpen ? "md:w-[240px]" : "md:w-[120px]"
-      } bg-cblack md:h-screen relative transition-all duration-500`}
+        isNavOpen ? "md:w-[240px] duration-0" : "md:w-[120px] duration-500"
+      } bg-cblack md:h-screen relative transition-all`}
     >
       <Image
         className="hidden md:block absolute right-[-15px] bottom-[50%] z-50"
@@ -124,7 +124,9 @@ export default function Nav() {
                   />
                   {isNavOpen && (
                     <span
-                      className={`hidden md:block text-white text-base font-medium ${textClass}`}
+                      className={`hidden md:block text-white text-base font-medium ${
+                        isNavOpen ? "opacity-100" : "opacity-50"
+                      } transition-opacity duration-500 ${textClass}`}
                     >
                       {route.name}
                     </span>
@@ -143,13 +145,8 @@ export default function Nav() {
 
       <div className="h-[96px] absolute bottom-0 w-full hidden md:block">
         <div className="border-t border-white border-opacity-20 w-full h-full flex flex-col items-center justify-center text-white text-opacity-50 gap-2">
-          <Image
-            src={LogoIcon}
-            alt="Logo"
-            width={20}
-            height={20}
-          />
-          <span className='text-xs'>© Lorem {moment().year()}</span>
+          <Image src={LogoIcon} alt="Logo" width={20} height={20} />
+          <span className="text-xs">© Lorem {moment().year()}</span>
         </div>
       </div>
     </nav>

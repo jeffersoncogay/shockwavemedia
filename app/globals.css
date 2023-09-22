@@ -2,9 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-.custom-day {
-  /* height: 50px; */
+.rbc-time-header {
+  display: none !important;
 }
+
 .rbc-timeslot-group {
-    min-height: 100px!important;
+  display: flex;
+  justify-content: center;
+  width: 130px;
+}
+.rbc-timeslot-group .custom-day {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rbc-timeslot-group .custom-day .rbc-time-slot {
+  text-align: center;
+}
+
+.rbc-events-container .rbc-event {
+  background-color: transparent !important;
+  border: none!important;
+  width: 97%!important;
+  margin-left: 2%!important;
+}
+
+.rbc-events-container .rbc-event-label {
+  display: none !important;
 }

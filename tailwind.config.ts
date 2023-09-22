@@ -13,7 +13,8 @@ const config: Config = {
         corange: '#F25D23',
         'corange-lighter': '#FF630B',
         cgray: '#9D9C9C',
-        'cgray-lighter': '#F2F2F1'
+        'cgray-lighter': '#F2F2F1',
+        cpurple: '#9747FF',
       }
     },
   },

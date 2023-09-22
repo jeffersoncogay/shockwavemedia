@@ -4,7 +4,7 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "moment/locale/en-gb";
-import { NextIcon, PrevIcon } from "./assets/svgs";
+import { ConsultationIcon, NextIcon, PrevIcon, UserIcon } from "./assets/svgs";
 
 moment.locale("en-gb");
 
@@ -83,12 +83,35 @@ const Home: React.FC = () => {
     );
   };
 
-  const timeSlotWrapper: React.FC = ({
+  const TimeSlotWrapper: React.FC = ({
     children,
   }: {
     children?: ReactNode;
   }) => {
     return <div className="custom-day">{children}</div>;
+  };
+
+  const CustomEvent: React.FC = ({ event }) => {
+    return (
+      <div className="border border-cpurple rounded-xl text-cblack h-full bg-cpurple overflow-hidden">
+        <div className="flex h-full w-full bg-white bg-opacity-70 px-5 items-center gap-3">
+          <div className="rounded-full bg-cpurple bg-opacity-10 h-[36px] w-[36px] flex items-center justify-center">
+            <ConsultationIcon className="w-5 h-5" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <strong>{event.title}</strong>
+            <p>
+              {moment(new Date(event.start)).format("h:mm A")} -{" "}
+              {moment(new Date(event.end)).format("h:mm A")}
+            </p>
+            <div className='flex gap-2 items-center'>
+              <UserIcon className='stroke-2 stroke-cpurple w-5 h-5' />
+              <span>Chrissie Lee, Kurt Browne, Anthony dela Cruz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -104,11 +127,12 @@ const Home: React.FC = () => {
           views={["day"]}
           defaultView="day"
           step={60}
-          timeslots={2} // Adjust the number of time slots as needed
+          timeslots={1} // Adjust the number of time slots as needed
           formats={formats}
           components={{
             toolbar: CustomHeader,
-            timeSlotWrapper: timeSlotWrapper,
+            timeSlotWrapper: TimeSlotWrapper,
+            event: CustomEvent,
           }}
         />
       </div>

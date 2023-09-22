@@ -8,3 +8,6 @@ export {default as HelpCenterIcon} from './help-center.svg';
 export {default as SettingsIcon} from './settings.svg';
 export {default as NextIcon} from './next.svg';
 export {default as PrevIcon} from './prev.svg';
+export {default as ConsultationIcon} from './consultation.svg';
+export {default as InjectionIcon} from './injection.svg';
+export {default as UserIcon} from './user.svg';
