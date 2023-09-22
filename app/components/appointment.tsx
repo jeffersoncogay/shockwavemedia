@@ -10,7 +10,7 @@ import JohnFins from "@assets/clinics/john-fins.png";
 import LeviJames from "@assets/clinics/levi-james.png";
 import FieldWrapper from "./field-wrapper";
 import { useState } from "react";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 
 export type VetType = {
   veterinary_name: string;
@@ -59,6 +59,12 @@ export default function Appointment() {
   const handleDateChange = (date: string | Date | Moment | undefined) => {
     setSelectedDate(date);
   };
+
+  const isValidDate = (currentDate: Moment) => {
+    // Disable dates that are later than the current date and time
+    return currentDate.isAfter(moment().subtract(1, "day"));
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-3/4 bg-white p-6 rounded shadow-lg">
@@ -105,6 +111,8 @@ export default function Appointment() {
                   placeholder: "Select date and time",
                   className: "w-full focus:outline-none focus:shadow-outline",
                 }}
+                isValidDate={(currentDate: Moment) => isValidDate(currentDate)}
+                timeFormat="hh:mm A"
               />
             </FieldWrapper>
           </div>
