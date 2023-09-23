@@ -5,23 +5,21 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "moment/locale/en-gb";
 import { ConsultationIcon, NextIcon, PrevIcon, UserIcon } from "./assets/svgs";
-import Appointment from "./components/appointment";
+import Appointment, { Veterinaries } from "./components/appointment";
+import useAppointmentStore from "./store/useAppointmentStore";
 
 moment.locale("en-gb");
 
 const localizer = momentLocalizer(moment);
 
 const Home: React.FC = () => {
+  const { appointments } = useAppointmentStore();
   const [date, setDate] = useState(new Date());
+  const [isOpenAppointment, setIsOpenAppointment] = useState(false);
 
   const events = [
     {
-      veterinary: {
-        veterinary_name: "Anika Perry",
-        address: "4517 Washington Avenue, Manchester, Kentucky 39495",
-        building: "Green Bow Vett",
-        contact_number: "+63 0123 123",
-      },
+      veterinary: Veterinaries[0],
       start: new Date(2023, 8, 22, 10, 0),
       end: new Date(2023, 8, 22, 11, 30),
     },
@@ -82,7 +80,7 @@ const Home: React.FC = () => {
           </div>
           <span>Today is {moment().format("dddd, MMMM D, YYYY")}</span>
         </div>
-        <button className="bg-corange-lighter text-white rounded-xl py-3 px-5">
+        <button className="bg-corange-lighter text-white rounded-xl py-3 px-5" onClick={() => setIsOpenAppointment(true)}>
           New Appointment
         </button>
       </div>
@@ -141,7 +139,10 @@ const Home: React.FC = () => {
             event: CustomEvent,
           }}
         />
-        <Appointment />
+        <Appointment
+          isOpen={isOpenAppointment}
+          onClose={setIsOpenAppointment}
+        />
       </div>
     </div>
   );

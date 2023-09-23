@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* width */
+::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-corange
+}
+
 .rbc-time-header {
   display: none !important;
 }
