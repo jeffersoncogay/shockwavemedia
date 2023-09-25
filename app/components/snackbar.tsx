@@ -20,7 +20,7 @@ const Snackbar: React.FC<SnackbarProps> = ({ message, isOpen, onClose }) => {
     <div
       className={`${
         isOpen ? "block" : "hidden"
-      } rounded-lg fixed bottom-3 right-3 w-full p-4 w-auto min-w-[200px] transition-transform transform duration-300 ease-in-out border border-green-500 bg-green-500 bg-opacity-60 text-white`}
+      } rounded-lg fixed bottom-3 right-3 w-auto p-4 w-auto min-w-[200px] transition-transform transform duration-300 ease-in-out border border-green-500 bg-green-500 bg-opacity-60 text-white`}
     >
       {message}
     </div>
