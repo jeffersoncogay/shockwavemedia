@@ -1,14 +1,9 @@
 "use client";
 
-import { FormEvent, ChangeEvent } from "react";
-import { StaticImageData } from "next/image";
+import { FormEvent, ChangeEvent, useEffect } from "react";
 import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 
-import AnikaPerry from "@assets/clinics/anika-perry.png";
-import DanicaJane from "@assets/clinics/danica-jane.png";
-import JohnFins from "@assets/clinics/john-fins.png";
-import LeviJames from "@assets/clinics/levi-james.png";
 import FieldWrapper from "./field-wrapper";
 import { useState } from "react";
 import moment, { Moment } from "moment";
@@ -16,62 +11,33 @@ import { NextIcon } from "../assets/svgs";
 import useAppointmentStore, {
   AppointmentType,
 } from "../store/useAppointmentStore";
-
-export type VetType = {
-  veterinary_name: string;
-  address: string;
-  building: string;
-  contact_number: string;
-  image: StaticImageData;
-};
-
-export const Veterinaries: VetType[] = [
-  {
-    veterinary_name: "Anika Perry",
-    address: "4517 Washington Avenue, Manchester, Kentucky 39495",
-    building: "Green Bow Vett",
-    contact_number: "+63 0123 123",
-    image: AnikaPerry,
-  },
-  {
-    veterinary_name: "Danica Jane",
-    address: "4517 Washington Avenue, Manchester, Kentucky 39495",
-    building: "Green Bow Vett",
-    contact_number: "+63 0123 123",
-    image: DanicaJane,
-  },
-  {
-    veterinary_name: "John Fins",
-    address: "4517 Washington Avenue, Manchester, Kentucky 39495",
-    building: "Green Bow Vett",
-    contact_number: "+63 0123 123",
-    image: JohnFins,
-  },
-  {
-    veterinary_name: "Levi James",
-    address: "4517 Washington Avenue, Manchester, Kentucky 39495",
-    building: "Green Bow Vett",
-    contact_number: "+63 0123 123",
-    image: LeviJames,
-  },
-];
+import { VetType, Veterinaries } from "../store/defaults";
+import Image from "next/image";
 
 export default function Appointment({
   isOpen,
   onClose,
+  event,
+  setSelectedAppointment,
+  openSnackbar,
 }: {
   isOpen: boolean;
   onClose: Function;
+  event: AppointmentType | null;
+  setSelectedAppointment: Function;
+  openSnackbar: Function;
 }) {
-  const { addAppointment } = useAppointmentStore();
+  const { addAppointment, updateAppointment } = useAppointmentStore();
   const [appointment, setAppointment] = useState<AppointmentType>({
-    veterinary_name: "",
+    id: 0,
+    veterinary_name: "Anika Perry",
     service: "",
-    datetime: undefined,
+    start: undefined,
+    end: undefined,
     pet_name: "",
     pet_breed: "",
     pet_age: "",
-    pet_gender: "",
+    pet_gender: "Male",
     pet_image: "",
     client_name: "",
     client_phone: "",
@@ -79,21 +45,43 @@ export default function Appointment({
     client_address: "",
   });
 
-  const handleDateChange = (date: string | Date | Moment | undefined) => {
+  useEffect(() => {
+    if (event) {
+      setAppointment(event);
+    }
+  }, [event]);
+
+  const handleDateChange = (
+    date: string | Date | Moment | undefined,
+    key: string
+  ) => {
     setAppointment({
       ...appointment,
-      datetime: date,
+      [key]: moment(date).toDate(),
     });
   };
 
   const isValidDate = (currentDate: Moment) => {
-    // Disable dates that are later than the current date and time
     return currentDate.isAfter(moment().subtract(1, "day"));
   };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    addAppointment(appointment);
+
+    if (event) {
+      updateAppointment(event.id, appointment);
+      setSelectedAppointment(null);
+      openSnackbar("Appointment successfully updated.");
+    } else {
+      addAppointment(appointment);
+      openSnackbar("Appointment successfully added.");
+    }
+
+    console.log("Appointment Date", {
+      start: moment(appointment.start).utc(),
+      end: moment(appointment.end).utc(),
+    });
+
     onClose(false);
   };
 
@@ -118,7 +106,7 @@ export default function Appointment({
       const reader = new FileReader();
 
       reader.onload = (event) => {
-        const base64 = event.target?.result;
+        const base64 = event.target?.result as string;
         setAppointment({
           ...appointment,
           pet_image: base64,
@@ -136,12 +124,14 @@ export default function Appointment({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <form
-        className="w-3/4 bg-white p-6 rounded shadow-lg"
+        className="md:w-3/4 bg-white p-6 rounded shadow-lg max-h-[90vh] overflow-auto"
         onSubmit={onSubmit}
       >
-        <div className="font-semibold text-xl mb-5">Set New Appointment</div>
-        <div className="flex gap-6 overflow-auto max-h-[70vh]">
-          <div className="w-1/3 bg-gray-200 rounded-xl p-5 flex flex-col gap-3">
+        <div className="font-semibold text-xl mb-5">
+          {event ? "Update" : "Set New"} Appointment
+        </div>
+        <div className="flex flex-col md:flex-row gap-6 overflow-auto">
+          <div className="md:w-1/3 bg-gray-200 rounded-xl p-5 flex flex-col gap-3">
             <h1 className="text-lg font-semibold mb-2">Clinic Information</h1>
             <FieldWrapper label="Veterinary">
               <div className="relative inline-block text-gray-700 w-full">
@@ -170,19 +160,42 @@ export default function Appointment({
             <FieldWrapper label="Service">
               <input
                 name="service"
-                placeholder="Type your service"
+                placeholder="e.g. Vaccination, Meeting"
                 className="w-full appearance-none border rounded py-2 px-3 bg-white leading-tight focus:outline-none focus:shadow-outline"
                 onChange={onChange}
                 value={appointment.service}
               />
             </FieldWrapper>
-            <FieldWrapper label="Apointment Date and Time">
+            <FieldWrapper label="Apointment Start Date and Time">
               <DateTime
-                value={appointment.datetime}
-                onChange={(date: string | Moment) => handleDateChange(date)}
+                value={appointment.start}
+                onChange={(date: string | Moment) =>
+                  handleDateChange(date, "start")
+                }
                 className="w-full appearance-none border rounded py-2 px-3 bg-white leading-tight"
                 inputProps={{
-                  placeholder: "Select date and time",
+                  placeholder: moment()
+                    .hour(9)
+                    .minute(0)
+                    .format("DD/MM/YYYY hh:mm A"),
+                  className: "w-full focus:outline-none focus:shadow-outline",
+                }}
+                isValidDate={(currentDate: Moment) => isValidDate(currentDate)}
+                timeFormat="hh:mm A"
+              />
+            </FieldWrapper>
+            <FieldWrapper label="Apointment End Date and Time">
+              <DateTime
+                value={appointment.end}
+                onChange={(date: string | Moment) =>
+                  handleDateChange(date, "end")
+                }
+                className="w-full appearance-none border rounded py-2 px-3 bg-white leading-tight"
+                inputProps={{
+                  placeholder: moment()
+                    .hour(9)
+                    .minute(30)
+                    .format("DD/MM/YYYY hh:mm A"),
                   className: "w-full focus:outline-none focus:shadow-outline",
                 }}
                 isValidDate={(currentDate: Moment) => isValidDate(currentDate)}
@@ -190,7 +203,7 @@ export default function Appointment({
               />
             </FieldWrapper>
           </div>
-          <div className="w-1/3 bg-purple-200 rounded-xl p-5 flex flex-col gap-3">
+          <div className="md:w-1/3 bg-purple-200 rounded-xl p-5 flex flex-col gap-3">
             <h1 className="text-lg font-semibold mb-2">Client Information</h1>
             <FieldWrapper label="Name">
               <input
@@ -205,7 +218,7 @@ export default function Appointment({
               <input
                 name="client_phone"
                 onChange={onChange}
-                placeholder="+01 234 567 8910"
+                placeholder="234-567-8910"
                 className="w-full appearance-none border rounded py-2 px-3 bg-white leading-tight focus:outline-none focus:shadow-outline"
                 value={appointment.client_phone}
               />
@@ -230,7 +243,7 @@ export default function Appointment({
               />
             </FieldWrapper>
           </div>
-          <div className="w-1/3 bg-orange-200 rounded-xl p-5 flex flex-col gap-3">
+          <div className="md:w-1/3 bg-orange-200 rounded-xl p-5 flex flex-col gap-3">
             <h1 className="text-lg font-semibold mb-2">Pet Information</h1>
             <FieldWrapper label="Name">
               <input
@@ -260,15 +273,31 @@ export default function Appointment({
               />
             </FieldWrapper>
             <FieldWrapper label="Gender">
-              <input
-                name="pet_gender"
-                onChange={onChange}
-                placeholder="Gender"
-                className="w-full appearance-none border rounded py-2 px-3 bg-white leading-tight focus:outline-none focus:shadow-outline"
-                value={appointment.pet_gender}
-              />
+              <div className="relative inline-block text-gray-700 w-full">
+                <select
+                  name="pet_gender"
+                  className="w-full appearance-none border rounded py-2 px-3 bg-white leading-tight focus:outline-none focus:shadow-outline"
+                  onChange={onSelect}
+                  value={appointment.pet_gender}
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 pr-4 text-gray-700">
+                  <NextIcon className="rotate-90 w-2" />
+                </div>
+              </div>
             </FieldWrapper>
             <FieldWrapper label="Image">
+              {appointment.pet_image && (
+                <Image
+                  src={appointment.pet_image}
+                  alt=""
+                  width={100}
+                  height={100}
+                  className="mb-2"
+                />
+              )}
               <input
                 type="file"
                 accept=".jpg, .jpeg, .png"
@@ -281,9 +310,11 @@ export default function Appointment({
         <div className="py-2 flex flex-row-reverse gap-3">
           <button
             type="submit"
-            className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className={`mt-4 ${
+              event ? "bg-corange-light" : "bg-blue-500"
+            } text-white font-bold py-2 px-4 rounded`}
           >
-            Submit
+            {event ? "Update" : "Submit"}
           </button>
           <button
             id="close-button"

@@ -8,16 +8,18 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-corange
+  @apply bg-corange;
 }
 
 .rbc-time-header {
   display: none !important;
 }
 
-.rbc-timeslot-group {
+.rbc-time-gutter .rbc-timeslot-group {
   display: flex;
   justify-content: center;
+}
+.rbc-time-column {
   width: 130px;
 }
 .rbc-timeslot-group .custom-day {
@@ -30,13 +32,22 @@
   text-align: center;
 }
 
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
+  background-color: transparent!important;
+}
+
 .rbc-events-container .rbc-event {
   background-color: transparent !important;
-  border: none!important;
-  width: 97%!important;
-  margin-left: 2%!important;
+  border: none !important;
+  width: 97% !important;
+  margin-left: 2% !important;
 }
 
 .rbc-events-container .rbc-event-label {
   display: none !important;
+}
+
+.with-right {
+  width: calc(100% - 400px);
 }

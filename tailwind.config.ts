@@ -15,6 +15,7 @@ const config: Config = {
         'corange-light': '#FF9447',
         cgray: '#9D9C9C',
         'cgray-lighter': '#F2F2F1',
+        'cgray-darker': '#D8D3CC',
         cpurple: '#9747FF',
       }
     },
