@@ -11,7 +11,7 @@ import { NextIcon } from "../assets/svgs";
 import useAppointmentStore, {
   AppointmentType,
 } from "../store/useAppointmentStore";
-import { VetType, Veterinaries } from "../store/defaults";
+import { VetType, Veterinaries, defaultAppointment } from "../store/defaults";
 import Image from "next/image";
 
 export default function Appointment({
@@ -27,9 +27,8 @@ export default function Appointment({
   setSelectedAppointment: Function;
   openSnackbar: Function;
 }) {
-  const { addAppointment, updateAppointment } = useAppointmentStore();
-  const [appointment, setAppointment] = useState<AppointmentType>({
-    id: 0,
+  const defaultAppointment = {
+    id: 1,
     veterinary_name: "Anika Perry",
     service: "",
     start: undefined,
@@ -43,13 +42,20 @@ export default function Appointment({
     client_phone: "",
     client_email: "",
     client_address: "",
+  };
+  const { addAppointment, updateAppointment } = useAppointmentStore();
+  const [appointment, setAppointment] = useState<AppointmentType>({
+    ...defaultAppointment,
   });
+  const [isError, setIsError] = useState(false);
+  const [isEndDateError, setIsEndDateError] = useState(false);
 
   useEffect(() => {
     if (event) {
       setAppointment(event);
     }
-  }, [event]);
+    return () => setAppointment({ ...defaultAppointment });
+  }, [event]); //eslint-disable-line
 
   const handleDateChange = (
     date: string | Date | Moment | undefined,
@@ -68,21 +74,42 @@ export default function Appointment({
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (event) {
-      updateAppointment(event.id, appointment);
-      setSelectedAppointment(null);
-      openSnackbar("Appointment successfully updated.");
-    } else {
-      addAppointment(appointment);
-      openSnackbar("Appointment successfully added.");
+    let isError = false;
+    let isDateError = false;
+    const formErrors = Object.values(appointment).filter((val) => !val);
+
+    if (formErrors.length) {
+      setIsError(true);
+      isError = true;
     }
 
-    console.log("Appointment Date", {
-      start: moment(appointment.start).utc(),
-      end: moment(appointment.end).utc(),
-    });
+    if (appointment.start) {
+      const isEndError = moment(appointment.start).isSameOrAfter(
+        moment(appointment.end)
+      );
+      setIsEndDateError(isEndError);
+      isDateError = isEndError;
+    }
 
-    onClose(false);
+    setIsError(isError);
+
+    if (!isError && !isDateError) {
+      if (event) {
+        updateAppointment(event.id, appointment);
+        setSelectedAppointment(null);
+        openSnackbar("Appointment successfully updated.");
+      } else {
+        addAppointment(appointment);
+        openSnackbar("Appointment successfully added.");
+      }
+
+      console.log("Appointment Date", {
+        start: moment(appointment.start).utc(),
+        end: moment(appointment.end).utc(),
+      });
+
+      onClose(false);
+    }
   };
 
   const onSelect = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -133,7 +160,10 @@ export default function Appointment({
         <div className="flex flex-col md:flex-row gap-6 overflow-auto">
           <div className="md:w-1/3 bg-gray-200 rounded-xl p-5 flex flex-col gap-3">
             <h1 className="text-lg font-semibold mb-2">Clinic Information</h1>
-            <FieldWrapper label="Veterinary">
+            <FieldWrapper
+              label="Veterinary"
+              error={isError && !appointment.veterinary_name}
+            >
               <div className="relative inline-block text-gray-700 w-full">
                 <select
                   name="veterinary_name"
@@ -157,7 +187,10 @@ export default function Appointment({
                 </div>
               </div>
             </FieldWrapper>
-            <FieldWrapper label="Service">
+            <FieldWrapper
+              label="Service"
+              error={isError && !appointment.service}
+            >
               <input
                 name="service"
                 placeholder="e.g. Vaccination, Meeting"
@@ -166,7 +199,10 @@ export default function Appointment({
                 value={appointment.service}
               />
             </FieldWrapper>
-            <FieldWrapper label="Apointment Start Date and Time">
+            <FieldWrapper
+              label="Apointment Start Date and Time"
+              error={isError && !appointment.start}
+            >
               <DateTime
                 value={appointment.start}
                 onChange={(date: string | Moment) =>
@@ -184,7 +220,10 @@ export default function Appointment({
                 timeFormat="hh:mm A"
               />
             </FieldWrapper>
-            <FieldWrapper label="Apointment End Date and Time">
+            <FieldWrapper
+              label="Apointment End Date and Time"
+              error={(isError && !appointment.end) || isEndDateError}
+            >
               <DateTime
                 value={appointment.end}
                 onChange={(date: string | Moment) =>
@@ -205,7 +244,10 @@ export default function Appointment({
           </div>
           <div className="md:w-1/3 bg-purple-200 rounded-xl p-5 flex flex-col gap-3">
             <h1 className="text-lg font-semibold mb-2">Client Information</h1>
-            <FieldWrapper label="Name">
+            <FieldWrapper
+              label="Name"
+              error={isError && !appointment.client_name}
+            >
               <input
                 name="client_name"
                 placeholder="Client's Name"
@@ -214,7 +256,10 @@ export default function Appointment({
                 value={appointment.client_name}
               />
             </FieldWrapper>
-            <FieldWrapper label="Phone">
+            <FieldWrapper
+              label="Phone"
+              error={isError && !appointment.client_phone}
+            >
               <input
                 name="client_phone"
                 onChange={onChange}
@@ -223,7 +268,10 @@ export default function Appointment({
                 value={appointment.client_phone}
               />
             </FieldWrapper>
-            <FieldWrapper label="Email">
+            <FieldWrapper
+              label="Email"
+              error={isError && !appointment.client_email}
+            >
               <input
                 name="client_email"
                 onChange={onChange}
@@ -233,7 +281,10 @@ export default function Appointment({
                 value={appointment.client_email}
               />
             </FieldWrapper>
-            <FieldWrapper label="Address">
+            <FieldWrapper
+              label="Address"
+              error={isError && !appointment.client_address}
+            >
               <input
                 name="client_address"
                 onChange={onChange}
@@ -245,7 +296,7 @@ export default function Appointment({
           </div>
           <div className="md:w-1/3 bg-orange-200 rounded-xl p-5 flex flex-col gap-3">
             <h1 className="text-lg font-semibold mb-2">Pet Information</h1>
-            <FieldWrapper label="Name">
+            <FieldWrapper label="Name" error={isError && !appointment.pet_name}>
               <input
                 name="pet_name"
                 onChange={onChange}
@@ -254,7 +305,10 @@ export default function Appointment({
                 value={appointment.pet_name}
               />
             </FieldWrapper>
-            <FieldWrapper label="Breed">
+            <FieldWrapper
+              label="Breed"
+              error={isError && !appointment.pet_breed}
+            >
               <input
                 name="pet_breed"
                 onChange={onChange}
@@ -263,7 +317,7 @@ export default function Appointment({
                 value={appointment.pet_breed}
               />
             </FieldWrapper>
-            <FieldWrapper label="Age">
+            <FieldWrapper label="Age" error={isError && !appointment.pet_age}>
               <input
                 name="pet_age"
                 onChange={onChange}
@@ -272,7 +326,10 @@ export default function Appointment({
                 value={appointment.pet_age}
               />
             </FieldWrapper>
-            <FieldWrapper label="Gender">
+            <FieldWrapper
+              label="Gender"
+              error={isError && !appointment.pet_gender}
+            >
               <div className="relative inline-block text-gray-700 w-full">
                 <select
                   name="pet_gender"
@@ -288,7 +345,10 @@ export default function Appointment({
                 </div>
               </div>
             </FieldWrapper>
-            <FieldWrapper label="Image">
+            <FieldWrapper
+              label="Image"
+              error={isError && !appointment.pet_image}
+            >
               {appointment.pet_image && (
                 <Image
                   src={appointment.pet_image}

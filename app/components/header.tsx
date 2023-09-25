@@ -11,7 +11,7 @@ import {
   SearchIcon,
   SettingsIcon,
 } from "../assets/svgs";
-import UserImg from "@assets/client.png";
+import UserImg from "@assets/user.png";
 import useAppointmentStore from "../store/useAppointmentStore";
 
 export default function Header() {
